@@ -3,11 +3,13 @@ version: "3.7"
 services:
   app:
     build:
-      context: .
+      context: ./app
       dockerfile: Dockerfile
     container_name: app
     hostname: app
     tty: true
+    depends_on:
+      - db
     networks:
       - fullcycle-node-network
 
@@ -25,18 +27,21 @@ services:
       - fullcycle-node-network
 
   db:
-    image: mysql:5.7
+    build:
+      context: ./database
+      dockerfile: Dockerfile
     command: --innodb-use-native-aio=0
     container_name: db
     restart: always
     volumes:
-      - ./database:/var/lib/mysql
-    environment:
-      - MYSQL_DATABASE=nodedb
-      - MYSQL_ROOT_PASSWORD=root
+      - database:/var/lib/mysql
     tty: true
     networks:
       - fullcycle-node-network
+
+volumes:
+  database:
+    name: fullcycle-database
 
 networks:
   fullcycle-node-network:
